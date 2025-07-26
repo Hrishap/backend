@@ -163,4 +163,69 @@ clearCookie("accessToken",options)
     .json(new ApiResponse(200,"Access token refreshed successfully",{accessToken,newRefreshToken}))
     
  })
-export { registerUser,loginUser,logoutUser,refreshAccessToken };
+
+ const changeUserPassword = asyncHandler(async(req,res)=>{
+
+  const {oldPassword,newPassword} = req.body;
+  if(!oldPassword || !newPassword){
+    throw new ApiError(400,"old password and new password are required");
+  }
+  const user = await User.findById(req.user?._id);
+
+  if(!user) throw new ApiError(404,"User not found");
+  const isPasswordValid = await user.isPasswordCorrect(oldPassword);
+  if(!isPasswordValid) throw new ApiError(401,"Invalid old password");
+
+  user.password = newPassword;
+  await user.save({validateBeforeSave:false});
+
+  return res.status(200)
+  .json(new ApiResponse(200,"Password Changed Succesfully",{}));
+
+ })
+
+ const getCurrentUser = asyncHandler(async(req,res) =>{
+  const user = await User.findById(req.user?._id).select("-password -refreshToken");
+  if(!user) throw new ApiError(404,"Current User not found");
+
+  return res.status(200)
+  .json(new ApiResponse(200,"Current User fetched Successfully",user));
+
+})
+
+const updateUserDetails = asyncHandler(async(req,res)=>{
+  const {fullName,email} = req.body;
+  if(!fullName || !email) throw new ApiError(400,"Full name and email are required");
+  const user = await User.findByIdAndUpdate(req.user?._id,{
+    $set :{
+      fullName,email
+    }},{
+      new:true
+    }).select("-password");
+
+    return res.status(200)
+    .json(new ApiResponse(200,"User details updated sucessfully",user));
+
+})
+
+const updateUserAvatar = asyncHandler(async(req,res)=>{
+  const avatarLocalPath = req.file?.path;
+  if(!avatarLocalPath) throw new ApiError(400,"New Avatar is required");
+  const avatar = await uploadOnCloudinary(avatarLocalPath);
+  if(!avatar.url) throw new ApiError(500,"Error while uploading avatar to cloudinary");
+  const user = await User.findByIdAndUpdate(req.user?._id,{
+    $set :{
+      avatar : avatar.url
+    }
+  },{
+    new : true
+  }
+).select("-password");
+
+if(!user) throw new ApiError(404,"User not found while avatar update");
+  
+  return res.status(200)
+  .json(new ApiResponse(200,"User avatar updated successfully",user));
+})
+
+export { registerUser,loginUser,logoutUser,refreshAccessToken,changeUserPassword,getCurrentUser,updateUserDetails,updateUserAvatar };
