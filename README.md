@@ -196,12 +196,44 @@ Base URL: `/api/v1/users`
     "data": {
       "_id": "user_id",
       "fullName": "Jane Doe",
-      "email": "janedoe@example.com",
-      ...
+      "email": "janedoe@example.com"
     },
     "success": true
   }
   ```
+
+---
+
+## Environment Variables
+
+The following environment variables are required for this app to work. Create a `.env` file in the root of your backend folder and provide these values:
+
+| Variable Name            | Description                                 | Example Value / Notes                                  |
+|--------------------------|---------------------------------------------|--------------------------------------------------------|
+| `PORT`                   | Port number for the server                  | `8000`                                                 |
+| `MONGODB_URI`            | MongoDB connection string                   | `mongodb+srv://user:password@cluster.mongodb.net/...`  |
+| `CORS_ORIGIN`            | Allowed CORS origin(s)                      | `*` or your frontend URL                               |
+| `ACCESS_TOKEN_SECRET`    | JWT secret for access tokens                | (random string)                                        |
+| `ACCESS_TOKEN_EXPIRY`    | Access token expiry duration                | `1d`                                                   |
+| `REFRESH_TOKEN_SECRET`   | JWT secret for refresh tokens               | (random string)                                        |
+| `REFRESH_TOKEN_EXPIRY`   | Refresh token expiry duration               | `10d`                                                  |
+| `CLOUDINARY_CLOUD_NAME`  | Cloudinary cloud name                       | (from Cloudinary dashboard)                            |
+| `CLOUDINARY_API_KEY`     | Cloudinary API key                          | (from Cloudinary dashboard)                            |
+| `CLOUDINARY_API_SECRET`  | Cloudinary API secret                       | (from Cloudinary dashboard)                            |
+
+**Example `.env` file:**
+```
+PORT=8000
+MONGODB_URI=mongodb+srv://user:password@cluster.mongodb.net/?retryWrites=true&w=majority
+CORS_ORIGIN=*
+ACCESS_TOKEN_SECRET=your_access_token_secret
+ACCESS_TOKEN_EXPIRY=1d
+REFRESH_TOKEN_SECRET=your_refresh_token_secret
+REFRESH_TOKEN_EXPIRY=10d
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+```
 
 ---
 
@@ -210,4 +242,6 @@ Base URL: `/api/v1/users`
 - All endpoints return a consistent response structure with `statusCode`, `message`, `data`, and `success`.
 - Authentication is handled via HTTP-only cookies or `Authorization` header.
 - File uploads (avatar, coverImage) must be sent as `multipart/form-data`.
-- For protected routes, ensure to send the access token as a cookie or in the `Authorization
+- For protected routes, ensure to send the access token as a cookie or in the `Authorization` header.
+
+---
